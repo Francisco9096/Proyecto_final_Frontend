@@ -19,8 +19,31 @@ def vender_producto(request, producto_id):
             ing.inventario -= 1
             ing.save()
 
-        return Response({"mensaje": "Venta realizada con éxito"})
+        return Response({
+            
+            "mensaje": "Venta realizada con éxito",
+            "inventario": [
+                {"nombre": ing.nombre, "stock": ing.inventario}
+                for ing in ingredientes
+            ]
+        })
 
     except Producto.DoesNotExist:
         return Response({"error": "Producto no existe"}, status=404)
     
+
+@api_view(['GET'])
+def listar_productos(request):
+    productos = Producto.objects.all()
+
+    data = [
+        {
+            "id": p.id,
+            "nombre": p.nombre,
+            "precio": p.precio_publico,
+            "stock": p.stock
+        }
+        for p in productos
+    ]
+
+    return Response(data)
